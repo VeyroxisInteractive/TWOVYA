@@ -17,7 +17,7 @@ function connectSocket(){
     setRealtimeNotice('Live rooms need the TWOVYA signaling server. The website and offline games still work here.');
     return;
   }
-  socket=window.io();
+  socket=window.io('https://interested-setting-since.trycloudflare.com');
   socket.on('connect_error',()=>setRealtimeNotice('Live server is offline. Solo features still work.'));
   socket.on('peer-ready',()=>{if(isInitiator&&pc) makeOffer();});
   socket.on('peer-left',()=>{if($('status')) $('status').textContent='Peer left'; try{dc?.close()}catch{}});
