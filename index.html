@@ -1,11 +1,591 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#100b19"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"><title>TWOVYA</title></head><body>
-<header><div class="brand">TWOVYA <b>♥</b></div><button id="install" class="ghost">Install</button></header>
-<main><section id="home" class="screen active"><div class="hero"><span class="pill">PRIVATE • SOCIAL • PLAY</span><h1>Just Two.<br><em>One Private Space.</em></h1><p>Talk, call, play and spend time together — without accounts or ads.</p></div><div class="grid"><button onclick="show('private')">💜<strong>Private Space</strong><small>Create or join a 2-person room</small></button><button onclick="show('random')">🎲<strong>Random Connect</strong><small>Text-first, consent-based calls</small></button><button onclick="show('games')">🎮<strong>Games</strong><small>Chess, Ludo-style & mind games</small></button><button onclick="show('fun')">✨<strong>Fun Time</strong><small>Questions, wheel & challenges</small></button><button onclick="show('party')">🥳<strong>Party Room</strong><small>Group mode — coming next</small></button><button onclick="show('privacy')">🛡️<strong>Privacy</strong><small>No ads. No permanent chats.</small></button></div></section>
-<section id="private" class="screen"><button class="back" onclick="show('home')">← Home</button><h2>Private Space 💜</h2><input id="nick" placeholder="Your nickname" maxlength="24"><input id="pin" placeholder="Optional room PIN" maxlength="12"><button id="create">Create Room</button><div class="or">or</div><input id="roomCode" placeholder="Room code"><button id="join">Join Room</button><p id="roomInfo"></p></section>
-<section id="random" class="screen"><button class="back" onclick="show('home')">← Home</button><h2>Random Connect 🎲</h2><p>Text first. Camera and microphone only after you choose.</p><input id="rnick" placeholder="Nickname"><button id="findRandom">Find Someone</button><button id="nextRandom" class="ghost hidden">Next</button><p id="randomStatus"></p></section>
-<section id="chat" class="screen"><div class="chatTop"><button class="back" onclick="location.reload()">← Leave</button><div><b id="chatTitle">Private Space</b><small id="status">Connecting…</small></div><button id="callBtn" class="round">📹</button></div><div id="messages"></div><div id="gameBar" class="gamebar"><button onclick="startTTT()">⭕ Tic‑Tac‑Toe</button><button onclick="show('games')">🎮 More</button></div><div id="ttt" class="ttt hidden"></div><div class="composer"><input id="msg" placeholder="Message…"><button id="send">➤</button></div></section>
-<section id="games" class="screen"><button class="back" onclick="show(currentRoom?'chat':'home')">← Back</button><h2>Game Hub 🎮</h2><div class="cards"><article><b>⭕ Tic‑Tac‑Toe</b><p>Live 2-player when connected.</p><button onclick="startTTT()">Play</button></article><article><b>🧠 2048</b><p>Solo mind game.</p><button onclick="start2048()">Play</button></article><article><b>♟️ Chess</b><p>Board module prepared for next production expansion.</p><button disabled>Coming next</button></article><article><b>🎲 Ludo</b><p>Full synchronized Ludo needs a larger game engine.</p><button disabled>Coming next</button></article><article><b>🔴 Connect 4</b><p>Planned multiplayer.</p><button disabled>Coming next</button></article><article><b>🧩 Sudoku & Memory</b><p>Mind-game pack planned.</p><button disabled>Coming next</button></article></div><div id="gameArea"></div></section>
-<section id="fun" class="screen"><button class="back" onclick="show('home')">← Home</button><h2>Fun Time ✨</h2><div id="funCard" class="bigcard">Tap below for a challenge.</div><button onclick="fun()">Give Me One</button></section>
-<section id="party" class="screen"><button class="back" onclick="show('home')">← Home</button><h2>Party Room 🥳</h2><p>Group rooms need separate multi-peer call/game handling. The current build intentionally keeps private rooms to two people so privacy and calls remain reliable.</p></section>
-<section id="privacy" class="screen"><button class="back" onclick="show('home')">← Home</button><h2>Privacy 🛡️</h2><div class="bigcard">No accounts • No ads • No analytics • Rooms are held in server memory only • Chat uses encrypted WebRTC DataChannel after connection • Calls use WebRTC • No call recording • App shell cache contains no chats.</div></section>
-</main><div id="call" class="call hidden"><video id="remote" autoplay playsinline></video><video id="local" autoplay muted playsinline></video><div class="callControls"><button id="mute">🎙️</button><button id="cam">📷</button><button id="hang">☎️</button></div></div><script src="/socket.io/socket.io.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#100b19"
+  >
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+  <title>TWOVYA</title>
+</head>
+
+<body>
+
+<header>
+
+  <div class="brand">
+    TWOVYA <b>♥</b>
+  </div>
+
+  <button
+    id="install"
+    class="ghost"
+  >
+    Install
+  </button>
+
+</header>
+
+
+<main>
+
+  <!-- HOME -->
+
+  <section
+    id="home"
+    class="screen active"
+  >
+
+    <div class="hero">
+
+      <span class="pill">
+        PRIVATE • SOCIAL • PLAY
+      </span>
+
+      <h1>
+        Just Two.<br>
+        <em>One Private Space.</em>
+      </h1>
+
+      <p>
+        Talk, call, play and spend time together —
+        without accounts or ads.
+      </p>
+
+    </div>
+
+
+    <div class="grid">
+
+      <button onclick="show('private')">
+        💜
+        <strong>Private Space</strong>
+        <small>
+          Create or join a 2-person room
+        </small>
+      </button>
+
+
+      <button onclick="show('random')">
+        🎲
+        <strong>Random Connect</strong>
+        <small>
+          Text-first, consent-based calls
+        </small>
+      </button>
+
+
+      <button onclick="show('games')">
+        🎮
+        <strong>Games</strong>
+        <small>
+          Chess, Ludo-style & mind games
+        </small>
+      </button>
+
+
+      <button onclick="show('fun')">
+        ✨
+        <strong>Fun Time</strong>
+        <small>
+          Questions, wheel & challenges
+        </small>
+      </button>
+
+
+      <button onclick="show('party')">
+        🥳
+        <strong>Party Room</strong>
+        <small>
+          Group mode — coming next
+        </small>
+      </button>
+
+
+      <button onclick="show('privacy')">
+        🛡️
+        <strong>Privacy</strong>
+        <small>
+          No ads. No permanent chats.
+        </small>
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- PRIVATE SPACE -->
+
+  <section
+    id="private"
+    class="screen"
+  >
+
+    <button
+      class="back"
+      onclick="show('home')"
+    >
+      ← Home
+    </button>
+
+    <h2>
+      Private Space 💜
+    </h2>
+
+    <input
+      id="nick"
+      placeholder="Your nickname"
+      maxlength="24"
+    >
+
+    <input
+      id="pin"
+      placeholder="Optional room PIN"
+      maxlength="12"
+    >
+
+    <button id="create">
+      Create Room
+    </button>
+
+    <div class="or">
+      or
+    </div>
+
+    <input
+      id="roomCode"
+      placeholder="Room code"
+    >
+
+    <button id="join">
+      Join Room
+    </button>
+
+    <p id="roomInfo"></p>
+
+  </section>
+
+
+  <!-- RANDOM CONNECT -->
+
+  <section
+    id="random"
+    class="screen"
+  >
+
+    <button
+      class="back"
+      onclick="show('home')"
+    >
+      ← Home
+    </button>
+
+    <h2>
+      Random Connect 🎲
+    </h2>
+
+    <p>
+      Text first. Camera and microphone only
+      after you choose.
+    </p>
+
+    <input
+      id="rnick"
+      placeholder="Nickname"
+    >
+
+    <button id="findRandom">
+      Find Someone
+    </button>
+
+    <button
+      id="nextRandom"
+      class="ghost hidden"
+    >
+      Next
+    </button>
+
+    <p id="randomStatus"></p>
+
+  </section>
+
+
+  <!-- CHAT -->
+
+  <section
+    id="chat"
+    class="screen"
+  >
+
+    <div class="chatTop">
+
+      <button
+        class="back"
+        onclick="location.reload()"
+      >
+        ← Leave
+      </button>
+
+
+      <div>
+
+        <b id="chatTitle">
+          Private Space
+        </b>
+
+        <small id="status">
+          Connecting…
+        </small>
+
+      </div>
+
+
+      <button
+        id="callBtn"
+        class="round"
+      >
+        📹
+      </button>
+
+    </div>
+
+
+    <div id="messages"></div>
+
+
+    <div
+      id="gameBar"
+      class="gamebar"
+    >
+
+      <button onclick="startTTT()">
+        ⭕ Tic-Tac-Toe
+      </button>
+
+      <button onclick="show('games')">
+        🎮 More
+      </button>
+
+    </div>
+
+
+    <div
+      id="ttt"
+      class="ttt hidden"
+    ></div>
+
+
+    <div class="composer">
+
+      <input
+        id="msg"
+        placeholder="Message…"
+      >
+
+      <button id="send">
+        ➤
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- GAMES -->
+
+  <section
+    id="games"
+    class="screen"
+  >
+
+    <button
+      class="back"
+      onclick="show(currentRoom?'chat':'home')"
+    >
+      ← Back
+    </button>
+
+    <h2>
+      Game Hub 🎮
+    </h2>
+
+
+    <div class="cards">
+
+      <article>
+
+        <b>
+          ⭕ Tic-Tac-Toe
+        </b>
+
+        <p>
+          Live 2-player when connected.
+        </p>
+
+        <button onclick="startTTT()">
+          Play
+        </button>
+
+      </article>
+
+
+      <article>
+
+        <b>
+          🧠 2048
+        </b>
+
+        <p>
+          Solo mind game.
+        </p>
+
+        <button onclick="start2048()">
+          Play
+        </button>
+
+      </article>
+
+
+      <article>
+
+        <b>
+          ♟️ Chess
+        </b>
+
+        <p>
+          Board module prepared for next
+          production expansion.
+        </p>
+
+        <button disabled>
+          Coming next
+        </button>
+
+      </article>
+
+
+      <article>
+
+        <b>
+          🎲 Ludo
+        </b>
+
+        <p>
+          Full synchronized Ludo needs
+          a larger game engine.
+        </p>
+
+        <button disabled>
+          Coming next
+        </button>
+
+      </article>
+
+
+      <article>
+
+        <b>
+          🔴 Connect 4
+        </b>
+
+        <p>
+          Planned multiplayer.
+        </p>
+
+        <button disabled>
+          Coming next
+        </button>
+
+      </article>
+
+
+      <article>
+
+        <b>
+          🧩 Sudoku & Memory
+        </b>
+
+        <p>
+          Mind-game pack planned.
+        </p>
+
+        <button disabled>
+          Coming next
+        </button>
+
+      </article>
+
+    </div>
+
+
+    <div id="gameArea"></div>
+
+  </section>
+
+
+  <!-- FUN -->
+
+  <section
+    id="fun"
+    class="screen"
+  >
+
+    <button
+      class="back"
+      onclick="show('home')"
+    >
+      ← Home
+    </button>
+
+    <h2>
+      Fun Time ✨
+    </h2>
+
+    <div
+      id="funCard"
+      class="bigcard"
+    >
+      Tap below for a challenge.
+    </div>
+
+    <button onclick="fun()">
+      Give Me One
+    </button>
+
+  </section>
+
+
+  <!-- PARTY -->
+
+  <section
+    id="party"
+    class="screen"
+  >
+
+    <button
+      class="back"
+      onclick="show('home')"
+    >
+      ← Home
+    </button>
+
+    <h2>
+      Party Room 🥳
+    </h2>
+
+    <p>
+      Group rooms need separate multi-peer
+      call/game handling. The current build
+      intentionally keeps private rooms to
+      two people so privacy and calls remain
+      reliable.
+    </p>
+
+  </section>
+
+
+  <!-- PRIVACY -->
+
+  <section
+    id="privacy"
+    class="screen"
+  >
+
+    <button
+      class="back"
+      onclick="show('home')"
+    >
+      ← Home
+    </button>
+
+    <h2>
+      Privacy 🛡️
+    </h2>
+
+    <div class="bigcard">
+
+      No accounts •
+      No ads •
+      No analytics •
+      Rooms are held in server memory only •
+      Chat uses encrypted WebRTC DataChannel
+      after connection •
+      Calls use WebRTC •
+      No call recording •
+      App shell cache contains no chats.
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- VIDEO CALL -->
+
+<div
+  id="call"
+  class="call hidden"
+>
+
+  <video
+    id="remote"
+    autoplay
+    playsinline
+  ></video>
+
+  <video
+    id="local"
+    autoplay
+    muted
+    playsinline
+  ></video>
+
+
+  <div class="callControls">
+
+    <button id="mute">
+      🎙️
+    </button>
+
+    <button id="cam">
+      📷
+    </button>
+
+    <button id="hang">
+      ☎️
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- TWOVYA BACKEND SOCKET.IO -->
+
+<script
+  src="https://threatening-fed-dressed-coordinated.trycloudflare.com/socket.io/socket.io.js"
+></script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
