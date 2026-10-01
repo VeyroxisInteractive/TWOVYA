@@ -24,9 +24,7 @@ function connectSocket(){
     return;
   }
 
-  socket=window.io(
-    'https://column-companies-pace-utilization.trycloudflare.com'
-  );
+  socket=window.io('https://threatening-fed-dressed-coordinated.trycloudflare.com');
 
   socket.on('connect_error',()=>{
     setRealtimeNotice('Live server is offline. Solo features still work.');
